@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content})}">
+
+<section th:fragment="content" class="home-page">
+
+    <div class="hero-container">
+
+        <div class="hero-content">
+
+            <span class="hero-label">
+                Votre assistant intelligent
+            </span>
+
+            <h1>
+                Bienvenue sur <span>PakiSanIA</span>
+            </h1>
+
+            <p class="hero-description">
+                Découvrez PakiSanIA, votre assistant intelligent
+                conçu pour vous accompagner et répondre à vos questions.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a th:href="@{/connexion}" class="btn-primary-custom">
+                    Se connecter
+                </a>
+
+                <a href="#presentation" class="btn-secondary-custom">
+                    En savoir plus
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-card">
+
+            <div class="chat-card-header">
+                <div class="status-indicator"></div>
+                <span>PakiSanIA</span>
+            </div>
+
+            <div class="chat-content">
+
+                <div class="message message-bot">
+                    Bonjour ! Je suis PakiSanIA.
+                    Comment puis-je vous aider aujourd'hui ?
+                </div>
+
+                <div class="message message-user">
+                    Bonjour, que peux-tu faire ?
+                </div>
+
+                <div class="message message-bot">
+                    Je peux répondre à vos questions et vous accompagner
+                    dans vos recherches.
+                </div>
+
+            </div>
+
+            <div class="chat-input">
+                <span>Écrivez votre message...</span>
+                <button type="button" aria-label="Envoyer">➤</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <section id="presentation" class="presentation-section">
+
+        <h2>Un assistant à votre service</h2>
+
+        <p>
+            PakiSanIA vous propose une interface simple et intuitive
+            pour échanger avec un assistant intelligent.
+        </p>
+
+    </section>
+
+</section>
+
+</html>

@@ -1,0 +1,394 @@
+/* =========================
+   PARAMÈTRES GÉNÉRAUX
+========================= */
+
+:root {
+    --green: #00640f;
+    --dark-green: #06451b;
+    --gold: #d4af37;
+    --background: #f4f7f4;
+    --white: #ffffff;
+    --text: #263328;
+    --muted: #6b756c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Calibri, Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+a {
+    text-decoration: none;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.main-header {
+    background: var(--white);
+    border-bottom: 1px solid #e5ebe5;
+    padding: 15px 6%;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--dark-green);
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.header-navigation {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-link {
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+.nav-link:hover {
+    color: var(--green);
+}
+
+.login-link {
+    background: var(--green);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.login-link:hover {
+    color: white;
+    background: var(--dark-green);
+}
+
+/* =========================
+   PAGE D'ACCUEIL
+========================= */
+
+.home-page {
+    min-height: 75vh;
+}
+
+.hero-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 90px 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 70px;
+}
+
+.hero-label {
+    color: var(--green);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 13px;
+}
+
+.hero-content h1 {
+    font-size: 48px;
+    margin: 20px 0;
+    color: var(--dark-green);
+}
+
+.hero-content h1 span {
+    color: var(--green);
+}
+
+.hero-description {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-primary-custom,
+.btn-secondary-custom {
+    display: inline-block;
+    padding: 13px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-primary-custom {
+    background: var(--green);
+    color: white;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    background: var(--dark-green);
+    color: white;
+}
+
+.btn-secondary-custom {
+    border: 1px solid var(--green);
+    color: var(--green);
+    background: white;
+}
+
+.btn-secondary-custom:hover {
+    background: #e8f1e8;
+    color: var(--dark-green);
+}
+
+/* =========================
+   CARTE DE DISCUSSION
+========================= */
+
+.hero-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 12px 35px rgba(0, 50, 10, 0.12);
+    overflow: hidden;
+    border: 1px solid #e6eee6;
+}
+
+.chat-card-header {
+    background: var(--dark-green);
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: bold;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    background: #65d879;
+    border-radius: 50%;
+}
+
+.chat-content {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 250px;
+}
+
+.message {
+    padding: 13px 16px;
+    border-radius: 12px;
+    max-width: 85%;
+    line-height: 1.5;
+}
+
+.message-bot {
+    background: #edf4ed;
+    align-self: flex-start;
+}
+
+.message-user {
+    background: var(--green);
+    color: white;
+    align-self: flex-end;
+}
+
+.chat-input {
+    margin: 0 20px 20px;
+    padding: 12px 15px;
+    border: 1px solid #dce5dc;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #899289;
+}
+
+.chat-input button {
+    border: none;
+    background: var(--green);
+    color: white;
+    border-radius: 7px;
+    padding: 8px 12px;
+}
+
+/* =========================
+   PRÉSENTATION
+========================= */
+
+.presentation-section {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+}
+
+.presentation-section h2 {
+    color: var(--dark-green);
+    margin-bottom: 20px;
+    font-size: 30px;
+}
+
+.presentation-section p {
+    color: var(--muted);
+    max-width: 650px;
+    margin: auto;
+    line-height: 1.7;
+}
+
+/* =========================
+   CONNEXION
+========================= */
+
+.login-page {
+    min-height: 75vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px;
+}
+
+.login-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(0, 50, 10, 0.10);
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-logo h1 {
+    color: var(--green);
+    font-size: 32px;
+}
+
+.login-logo p {
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+.login-card h2 {
+    color: var(--dark-green);
+    margin-bottom: 10px;
+}
+
+.login-description {
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+
+.form-group-custom {
+    margin-bottom: 20px;
+}
+
+.form-group-custom label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--dark-green);
+}
+
+.form-group-custom input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dce5dc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+.form-group-custom input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(0, 100, 15, 0.10);
+}
+
+.login-button {
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-back {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.login-back a {
+    color: var(--green);
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.main-footer {
+    background: var(--dark-green);
+    color: white;
+    text-align: center;
+    padding: 22px;
+}
+
+.main-footer p {
+    margin: 0;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+    .hero-container {
+        grid-template-columns: 1fr;
+        padding: 50px 20px;
+        gap: 35px;
+    }
+
+    .hero-content h1 {
+        font-size: 36px;
+    }
+
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .login-card {
+        padding: 25px;
+    }
+
+}

@@ -1,0 +1,27 @@
+<header th:fragment="header" class="main-header">
+
+    <div class="header-container">
+
+        <a th:href="@{/}" class="brand">
+            <img th:src="@{/img/logo.png}"
+                 alt="Logo PakiSanIA"
+                 class="brand-logo">
+
+            <span>PakiSanIA</span>
+        </a>
+
+        <nav class="header-navigation">
+
+            <a th:href="@{/}" class="nav-link">
+                Accueil
+            </a>
+
+            <a th:href="@{/connexion}" class="nav-link login-link">
+                Connexion
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>

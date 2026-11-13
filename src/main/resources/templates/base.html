@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(content)">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PakiSanIA</title>
+
+    <!-- Bootstrap local -->
+    <link rel="stylesheet" th:href="@{/vendor/css/bootstrap.min.css}">
+
+    <!-- CSS du projet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- Header réutilisable -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Contenu propre à chaque page -->
+<main th:replace="${content}">
+</main>
+
+<!-- Footer réutilisable -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- JavaScript Bootstrap -->
+<script th:src="@{/vendor/js/bootstrap.bundle.min.js}"></script>
+
+<!-- JavaScript du projet -->
+<script th:src="@{/js/app.js}"></script>
+
+</body>
+</html>
