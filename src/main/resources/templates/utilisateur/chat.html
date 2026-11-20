@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PakiSanIA - Chat</title>
+
+    <link rel="stylesheet" th:href="@{/vendor/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="chat-body">
+
+<div class="chat-layout">
+
+    <!-- Barre latérale : navigation et historique -->
+    <aside class="chat-sidebar">
+
+        <a th:href="@{/}" class="brand sidebar-brand">
+            <img th:src="@{/img/logo.png}" alt="Logo PakiSanIA" class="brand-logo">
+            <span>PakiSanIA</span>
+        </a>
+
+        <a th:href="@{/chat}" class="sidebar-new">+ Nouveau chat</a>
+        <a th:href="@{/}" class="sidebar-home">&larr; Retour à l'accueil</a>
+
+        <h6 class="sidebar-title">Historique</h6>
+
+        <nav class="sidebar-history">
+
+            <div th:each="c : ${conversations}" class="sidebar-row">
+
+                <a th:href="@{/conversations/{id}(id=${c.id})}"
+                   th:text="${c.titre}"
+                   class="sidebar-item"
+                   th:classappend="${conversation != null and conversation.id == c.id} ? 'active' : ''">
+                </a>
+
+                <form th:action="@{/conversations/{id}/supprimer(id=${c.id})}"
+                      method="post"
+                      onsubmit="return confirm('Supprimer cette conversation ?');">
+                    <input type="hidden" name="retour"
+                           th:value="${conversation != null ? conversation.id : ''}">
+                    <button type="submit" class="sidebar-delete"
+                            title="Supprimer" aria-label="Supprimer">&times;</button>
+                </form>
+
+            </div>
+
+            <p th:if="${#lists.isEmpty(conversations)}" class="sidebar-empty">
+                Aucune conversation
+            </p>
+
+        </nav>
+
+    </aside>
+
+    <!-- Zone principale -->
+    <main class="chat-main">
+
+        <div class="chat-topbar">
+            <span th:if="${conversation != null}" th:text="${conversation.titre}">Titre</span>
+            <span th:if="${conversation == null}">Nouveau chat</span>
+
+            <span class="chat-model" th:if="${conversation != null}"
+                  th:text="${conversation.modeleIA.nom}">Modèle</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-messages-inner">
+
+                <div class="chat-welcome" th:if="${conversation == null}">
+                    <h2>Comment puis-je vous aider ?</h2>
+                    <p>Choisissez un modèle IA et posez votre question.</p>
+                </div>
+
+                <div th:each="m : ${messages}"
+                     class="message message-texte"
+                     th:classappend="${m.typeMessage.name() == 'UTILISATEUR'} ? 'message-user' : 'message-bot'"
+                     th:text="${m.contenu}">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="chat-footer">
+
+            <!-- Nouveau chat : choix du modèle + premier message -->
+            <form th:if="${conversation == null}"
+                  th:action="@{/conversations}"
+                  method="post"
+                  class="chat-form">
+
+                <select name="idModele" class="chat-select" aria-label="Modèle IA" required>
+                    <option th:each="modele, stat : ${modeles}"
+                            th:value="${modele.id}"
+                            th:text="${modele.nom}"
+                            th:selected="${stat.first}">
+                    </option>
+                </select>
+
+                <div class="chat-input">
+                    <textarea name="prompt" rows="2"
+                              placeholder="Écrivez votre message..."
+                              required></textarea>
+                    <button type="submit" aria-label="Envoyer">➤</button>
+                </div>
+
+            </form>
+
+            <!-- Conversation existante : nouveau message -->
+            <form th:if="${conversation != null}"
+                  th:action="@{/conversations/{id}/messages(id=${conversation.id})}"
+                  method="post"
+                  class="chat-form">
+
+                <div class="chat-input">
+                    <textarea name="prompt" rows="2"
+                              placeholder="Écrivez votre message..."
+                              required></textarea>
+                    <button type="submit" aria-label="Envoyer">➤</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    // Affiche le dernier message
+    const zone = document.getElementById("chatMessages");
+    if (zone) {
+        zone.scrollTop = zone.scrollHeight;
+    }
+
+    // Entrée envoie le message, Maj+Entrée fait un retour à la ligne
+    document.querySelectorAll(".chat-footer textarea").forEach(function (t) {
+        t.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                t.form.requestSubmit();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

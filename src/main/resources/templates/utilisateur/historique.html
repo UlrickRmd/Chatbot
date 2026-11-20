@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content})}">
+
+<section th:fragment="content" class="history-page">
+
+    <h1>Historique des conversations</h1>
+
+    <p th:if="${#lists.isEmpty(conversations)}" class="history-empty">
+        Aucune conversation pour le moment.
+    </p>
+
+    <div class="history-list">
+        <a th:each="c : ${conversations}"
+           th:href="@{/conversations/{id}(id=${c.id})}"
+           class="history-item">
+            <span class="history-title" th:text="${c.titre}">Titre</span>
+            <span class="history-meta">
+                <span th:text="${c.modeleIA.nom}">Modèle</span>
+                ·
+                <span th:text="${#temporals.format(c.dateDerniereModification, 'dd/MM/yyyy HH:mm')}">date</span>
+            </span>
+        </a>
+    </div>
+
+</section>
+
+</html>

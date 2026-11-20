@@ -40,30 +40,66 @@
             <div class="chat-card-header">
                 <div class="status-indicator"></div>
                 <span>PakiSanIA</span>
+                <span class="chat-model" th:if="${conversation != null}"
+                      th:text="${conversation.modeleIA.nom}">Modèle</span>
+                <a th:if="${conversation != null}" th:href="@{/}"
+                   class="chat-new">+ Nouvelle</a>
             </div>
 
             <div class="chat-content">
 
-                <div class="message message-bot">
+                <!-- Aucune conversation : message d'accueil -->
+                <div class="message message-bot" th:if="${conversation == null}">
                     Bonjour ! Je suis PakiSanIA.
-                    Comment puis-je vous aider aujourd'hui ?
+                    Choisissez un modèle et posez votre question pour démarrer une conversation.
                 </div>
 
-                <div class="message message-user">
-                    Bonjour, que peux-tu faire ?
-                </div>
-
-                <div class="message message-bot">
-                    Je peux répondre à vos questions et vous accompagner
-                    dans vos recherches.
+                <!-- Conversation en cours -->
+                <div th:each="m : ${messages}"
+                     class="message message-texte"
+                     th:classappend="${m.typeMessage.name() == 'UTILISATEUR'} ? 'message-user' : 'message-bot'"
+                     th:text="${m.contenu}">
                 </div>
 
             </div>
 
-            <div class="chat-input">
-                <span>Écrivez votre message...</span>
-                <button type="button" aria-label="Envoyer">➤</button>
-            </div>
+            <!-- Lancer une conversation -->
+            <form th:if="${conversation == null}"
+                  th:action="@{/conversations}"
+                  method="post"
+                  class="chat-form">
+
+                <select name="idModele" class="chat-select" aria-label="Modèle IA" required>
+                    <option th:each="modele, stat : ${modeles}"
+                            th:value="${modele.id}"
+                            th:text="${modele.nom}"
+                            th:selected="${stat.first}">
+                    </option>
+                </select>
+
+                <div class="chat-input">
+                    <textarea name="prompt" rows="2"
+                              placeholder="Écrivez votre message..."
+                              required></textarea>
+                    <button type="submit" aria-label="Envoyer">➤</button>
+                </div>
+
+            </form>
+
+            <!-- Envoyer un nouveau message dans la conversation -->
+            <form th:if="${conversation != null}"
+                  th:action="@{/conversations/{id}/messages(id=${conversation.id})}"
+                  method="post"
+                  class="chat-form">
+
+                <div class="chat-input">
+                    <textarea name="prompt" rows="2"
+                              placeholder="Écrivez votre message..."
+                              required></textarea>
+                    <button type="submit" aria-label="Envoyer">➤</button>
+                </div>
+
+            </form>
 
         </div>
 

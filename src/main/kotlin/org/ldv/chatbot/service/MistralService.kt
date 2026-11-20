@@ -1,5 +1,9 @@
+package org.ldv.chatbot.service
+
+import org.ldv.chatbot.dto.mistral.MistralChatRequest
+import org.ldv.chatbot.dto.mistral.MistralChatResponse
+import org.ldv.chatbot.dto.mistral.MistralMessage
 import org.ldv.chatbot.model.entity.ModeleIA
-import org.ldv.chatbot.service.IAService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -13,23 +17,24 @@ class MistralService(
     private val apiKey: String
 
 ) : IAService {
+
     override fun getFournisseur(): String = "Mistral"
 
     override fun envoyerPrompt(prompt: String, modele: ModeleIA): String {
 
-        // Étape 1 : Création du message de l'utilisateur
+        // Étape 1 : message de l'utilisateur
         val message = MistralMessage(
             role = "user",
             content = prompt
         )
 
-        // Étape 2 : Préparation de la requête pour Mistral
+        // Étape 2 : requête pour Mistral
         val request = MistralChatRequest(
-            model = modele.nom,
+            model = modele.identifiantTechnique,
             messages = listOf(message)
         )
 
-        // Étape 3 : Envoi de la requête HTTP POST à l'API
+        // Étape 3 : envoi de la requête HTTP POST
         val client = restClientBuilder.build()
 
         val response = client.post()
@@ -40,15 +45,9 @@ class MistralService(
             .retrieve()
             .body(MistralChatResponse::class.java)
 
-        // Étape 4 : Récupération du texte de la réponse
-        val choix = response?.choices?.firstOrNull()
-        val reponse = choix?.message?.content
+        // Étape 4 : récupération du texte
+        val reponse = response?.choices?.firstOrNull()?.message?.content
 
-        if (reponse != null) {
-            return reponse
-        } else {
-            return "Aucune réponse reçue de Mistral."
-        }
+        return reponse ?: "Aucune réponse reçue de Mistral."
     }
-
 }

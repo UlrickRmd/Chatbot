@@ -17,7 +17,7 @@ class Conversation(
     var dateCreation: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    var dateModification: LocalDateTime = LocalDateTime.now(),
+    var dateDerniereModification: LocalDateTime = LocalDateTime.now(),
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "modele_ia_id")
