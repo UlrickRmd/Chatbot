@@ -1,19 +1,18 @@
 package org.ldv.chatbot.controller
 
-import org.apache.logging.log4j.message.Message
 import org.ldv.chatbot.model.dao.ConversationDAO
 import org.ldv.chatbot.model.dao.MessageDAO
 import org.ldv.chatbot.model.dao.ModeleIADAO
-import org.ldv.chatbot.service.IAServiceFactory
+import org.ldv.chatbot.model.entity.Message
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
 class ChatController(
-    private val iaServiceFactory: IAServiceFactory,
+
     private val conversationDAO: ConversationDAO,
-    private val messageDAO: MessageDAO,
+
     private val modeleIADAO: ModeleIADAO
 ) {
     // Page d'accueil : liste des conversations

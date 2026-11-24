@@ -16,6 +16,10 @@
            class="alert alert-info">
         </p>
 
+        <p th:if="${erreur}" th:text="${erreur}"
+           class="alert alert-danger">
+        </p>
+
         <p class="login-description">
             Connectez-vous pour accéder à votre espace.
         </p>
@@ -30,6 +34,7 @@
                         type="email"
                         id="email"
                         name="email"
+                        th:value="${email}"
                         placeholder="exemple@email.com"
                         required
                 >

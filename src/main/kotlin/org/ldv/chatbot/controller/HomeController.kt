@@ -6,6 +6,7 @@ import org.ldv.chatbot.model.dao.ModeleIADAO
 import org.ldv.chatbot.model.entity.Conversation
 import org.ldv.chatbot.model.entity.Message
 import org.ldv.chatbot.model.entity.TypeMessage
+import org.ldv.chatbot.service.IAServiceFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -14,12 +15,14 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 
 @Controller
 class HomeController(
     private val conversationDAO: ConversationDAO,
     private val messageDAO: MessageDAO,
-    private val modeleIADAO: ModeleIADAO
+    private val modeleIADAO: ModeleIADAO,
+    private val iaServiceFactory: IAServiceFactory
 ) {
 
     // Page d'accueil : le chatbot est directement utilisable
@@ -77,6 +80,26 @@ class HomeController(
                 conversation = conversation
             )
         )
+        try {
+            // Sélection automatique du service
+            val iaService = iaServiceFactory.getService(modele)
+
+            // Appel du fournisseur correspondant
+            val reponse = iaService.envoyerPrompt(prompt, modele)
+
+
+            val messageAssistant = Message(
+                contenu = reponse,
+                dateCreation = LocalDateTime.now(),
+                typeMessage = TypeMessage.ASSISTANT,
+                conversation = conversation
+            )
+
+            messageDAO.save(messageAssistant)
+
+        } catch (e: Exception) {
+            println("Erreur lors de l’appel au modèle ${modele.nom} : ${e.message}")
+        }
 
         return "redirect:/conversations/${conversation.id}"
     }
@@ -101,25 +124,92 @@ class HomeController(
         return "utilisateur/chat"
     }
 
+    @PostMapping("/conversations/{id}/messages")
+    fun envoyerMessage(
+        @PathVariable id: Long,
+        @RequestParam prompt: String
+    ): String {
+
+        val conversation = conversationDAO.findById(id)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+
+        // Enregistrement du message utilisateur
+        val messageUtilisateur = Message(
+            contenu = prompt,
+            dateCreation = LocalDateTime.now(),
+            typeMessage = TypeMessage.UTILISATEUR,
+            conversation = conversation
+        )
+
+        messageDAO.save(messageUtilisateur)
+
+        try {
+            val modele = conversation.modeleIA!!
+            // Sélection automatique du service
+            val iaService = iaServiceFactory.getService(modele)
+
+            // Appel du fournisseur correspondant
+            val reponse = iaService.envoyerPrompt(prompt, modele)
+
+
+            val messageAssistant = Message(
+                contenu = reponse,
+                dateCreation = LocalDateTime.now(),
+                typeMessage = TypeMessage.ASSISTANT,
+                conversation = conversation
+            )
+
+            messageDAO.save(messageAssistant)
+
+        } catch (e: Exception) {
+            println("Erreur lors de l'appel à ${conversation.modeleIA!!.nom} : ${e.message}")
+        }
+
+        conversation.dateDerniereModification = LocalDateTime.now()
+        conversationDAO.save(conversation)
+
+        return "redirect:/conversations/$id"
+    }
+
+
+    // Suppression d'une conversation (et de ses messages, par cascade)
+    @PostMapping("/conversations/{id}/supprimer")
+    fun supprimerConversation(
+        @PathVariable id: Long,
+        @RequestParam(required = false) retour: String?
+    ): String {
+
+        if (conversationDAO.existsById(id)) {
+            conversationDAO.deleteById(id)
+        }
+
+        // Si on supprime une autre conversation que celle affichée, on reste dessus
+        val idCourant = retour?.toLongOrNull()
+        return if (idCourant != null && idCourant != id && conversationDAO.existsById(idCourant)) {
+            "redirect:/conversations/$idCourant"
+        } else {
+            "redirect:/chat"
+        }
+    }
+
     // Page de connexion
     @GetMapping("/connexion")
     fun connexion(): String {
         return "auth/connexion"
     }
 
-    // Traitement provisoire du formulaire
+    // Traitement du formulaire de connexion
+    // Pas encore de gestion des utilisateurs : toute tentative est refusée,
+    // mais on reste sur la page de connexion avec un message d'erreur.
     @PostMapping("/connexion")
     fun traiterConnexion(
         @RequestParam email: String,
-        @RequestParam password: String,
         model: Model
     ): String {
-
-        model.addAttribute(
-            "message",
-            "Le formulaire fonctionne, mais l'authentification n'est pas encore activée."
-        )
-
+        model.addAttribute("erreur", "Identifiant ou mot de passe incorrect.")
+        model.addAttribute("email", email)
         return "auth/connexion"
     }
+
+
 }
