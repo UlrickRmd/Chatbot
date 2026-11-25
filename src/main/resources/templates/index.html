@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{base :: layout(~{::content})}">
 
 <section th:fragment="content" class="home-page">
@@ -23,7 +24,8 @@
 
             <div class="hero-buttons">
 
-                <a th:href="@{/connexion}" class="btn-primary-custom">
+                <a th:href="@{/login}" class="btn-primary-custom"
+                   sec:authorize="isAnonymous()">
                     Se connecter
                 </a>
 

@@ -192,15 +192,25 @@ class HomeController(
         }
     }
 
-    // Page de connexion
-    @GetMapping("/connexion")
-    fun connexion(): String {
-        return "auth/connexion"
+    // Page de connexion (Spring Security) : affichage uniquement.
+    // Le traitement du formulaire (POST /login) est fait par Spring Security,
+    // il ne faut pas créer de @PostMapping("/login") ici.
+    @GetMapping("/login")
+    fun login(model: Model): String {
+        // Permet de masquer le header sur la page de connexion (voir base.html)
+        model.addAttribute("pageConnexion", true)
+        return "auth/login"
     }
 
-    // Traitement du formulaire de connexion
-    // Pas encore de gestion des utilisateurs : toute tentative est refusée,
-    // mais on reste sur la page de connexion avec un message d'erreur.
+    // Ancienne page de connexion : conservée, elle redirige maintenant vers /login
+    @GetMapping("/connexion")
+    fun connexion(): String {
+        return "redirect:/login"
+    }
+
+    // Ancien traitement du formulaire de connexion (gardé en commentaire) :
+    // il est remplacé par Spring Security (POST /login).
+    /*
     @PostMapping("/connexion")
     fun traiterConnexion(
         @RequestParam email: String,
@@ -210,6 +220,6 @@ class HomeController(
         model.addAttribute("email", email)
         return "auth/connexion"
     }
-
+    */
 
 }

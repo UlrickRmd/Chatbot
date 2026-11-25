@@ -12,15 +12,29 @@
 
         <nav class="header-navigation">
 
-            <a th:href="@{/}" class="nav-link">
-                Accueil
-            </a>
+            <!-- Navigation : uniquement pour les utilisateurs connectés -->
+            <th:block sec:authorize="isAuthenticated()">
 
-            <a th:href="@{/historique}" class="nav-link">
-                Historique
-            </a>
+                <a th:href="@{/}" class="nav-link">
+                    Accueil
+                </a>
 
-            <a th:href="@{/connexion}" class="nav-link login-link">
+                <a th:href="@{/historique}" class="nav-link">
+                    Historique
+                </a>
+
+                <!-- Déconnexion (POST + jeton CSRF ajouté par Thymeleaf) -->
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        Déconnexion
+                    </button>
+                </form>
+
+            </th:block>
+
+            <!-- Visiteur non connecté -->
+            <a th:href="@{/login}" class="nav-link login-link"
+               sec:authorize="isAnonymous()">
                 Connexion
             </a>
 

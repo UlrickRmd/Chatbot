@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:fragment="layout(content)">
 
 <head>
@@ -17,8 +18,10 @@
 
 <body>
 
-<!-- Header réutilisable -->
-<div th:replace="~{fragments/header :: header}"></div>
+<!-- Header réutilisable (masqué sur la page de connexion) -->
+<th:block th:if="${pageConnexion != true}">
+    <div th:replace="~{fragments/header :: header}"></div>
+</th:block>
 
 <!-- Contenu propre à chaque page -->
 <main th:replace="${content}">
