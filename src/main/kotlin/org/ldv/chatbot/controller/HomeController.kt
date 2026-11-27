@@ -3,11 +3,15 @@ package org.ldv.chatbot.controller
 import org.ldv.chatbot.model.dao.ConversationDAO
 import org.ldv.chatbot.model.dao.MessageDAO
 import org.ldv.chatbot.model.dao.ModeleIADAO
+import org.ldv.chatbot.model.dao.UtilisateurDAO
 import org.ldv.chatbot.model.entity.Conversation
 import org.ldv.chatbot.model.entity.Message
 import org.ldv.chatbot.model.entity.TypeMessage
+import org.ldv.chatbot.model.entity.Utilisateur
 import org.ldv.chatbot.service.IAServiceFactory
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,29 +26,45 @@ class HomeController(
     private val conversationDAO: ConversationDAO,
     private val messageDAO: MessageDAO,
     private val modeleIADAO: ModeleIADAO,
-    private val iaServiceFactory: IAServiceFactory
+    private val iaServiceFactory: IAServiceFactory,
+    private val utilisateurDAO: UtilisateurDAO
 ) {
+
+    // Récupère l'entité Utilisateur à partir de l'authentification (email = identifiant)
+    private fun getUtilisateurConnecte(authentication: Authentication): Utilisateur {
+        val email = authentication.name
+        return utilisateurDAO
+            .findByEmailIgnoreCase(email)
+            ?: throw UsernameNotFoundException("Utilisateur introuvable")
+    }
 
     // Page d'accueil : le chatbot est directement utilisable
     @GetMapping("/")
-    fun accueil(model: Model): String {
+    fun accueil(model: Model, authentication: Authentication): String {
+        // Recupere l'utilisateur de la session
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+        // Ajout de l'utilisateur à la vue
+        model.addAttribute("utilisateur", utilisateur)
+
         // Retire la conversation courante
         model.addAttribute("conversation", null)
         model.addAttribute("modeles", modeleIADAO.findAll())
         model.addAttribute("messages", emptyList<Message>())
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByOrderByDateDerniereModificationDesc()
+            conversationDAO.findAllByUtilisateurOrderByDateDerniereModificationDesc(utilisateur)
         )
         return "index"
     }
 
-    // Page historique
+    // Page historique (uniquement les conversations de l'utilisateur connecté)
     @GetMapping("/historique")
-    fun historique(model: Model): String {
+    fun historique(model: Model, authentication: Authentication): String {
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+        model.addAttribute("utilisateur", utilisateur)
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByOrderByDateDerniereModificationDesc()
+            conversationDAO.findAllByUtilisateurOrderByDateDerniereModificationDesc(utilisateur)
         )
         return "utilisateur/historique"
     }
@@ -53,8 +73,12 @@ class HomeController(
     @PostMapping("/conversations")
     fun creerConversation(
         @RequestParam prompt: String,
-        @RequestParam idModele: Long
+        @RequestParam idModele: Long,
+        authentication: Authentication
     ): String {
+
+        // Le propriétaire vient de l'authentification, jamais du formulaire
+        val utilisateur = this.getUtilisateurConnecte(authentication)
 
         val texte = prompt.trim()
         if (texte.isEmpty()) {
@@ -69,7 +93,8 @@ class HomeController(
         val conversation = conversationDAO.save(
             Conversation(
                 titre = texte.take(50),
-                modeleIA = modele
+                modeleIA = modele,
+                utilisateur = utilisateur
             )
         )
 
@@ -108,16 +133,23 @@ class HomeController(
     @GetMapping("/conversations/{id}")
     fun afficherConversation(
         @PathVariable id: Long,
-        model: Model
+        model: Model,
+        authentication: Authentication
     ): String {
 
-        val conversation = conversationDAO.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+        // Recupere l'utilisateur
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+        model.addAttribute("utilisateur", utilisateur)
+
+        // La conversation doit appartenir à l'utilisateur connecté (sinon 404)
+        val conversation = conversationDAO
+            .findByIdAndUtilisateur(id, utilisateur)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation introuvable")
 
         model.addAttribute("modeles", modeleIADAO.findAll())
         model.addAttribute(
             "conversations",
-            conversationDAO.findAllByOrderByDateDerniereModificationDesc()
+            conversationDAO.findAllByUtilisateurOrderByDateDerniereModificationDesc(utilisateur)
         )
         model.addAttribute("conversation", conversation)
         model.addAttribute("messages", messageDAO.findByConversationIdOrderByDateCreationAsc(id))
@@ -127,11 +159,16 @@ class HomeController(
     @PostMapping("/conversations/{id}/messages")
     fun envoyerMessage(
         @PathVariable id: Long,
-        @RequestParam prompt: String
+        @RequestParam prompt: String,
+        authentication: Authentication
     ): String {
 
-        val conversation = conversationDAO.findById(id)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND) }
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+
+        // Vérification du propriétaire AVANT tout enregistrement et tout appel à l'API IA
+        val conversation = conversationDAO
+            .findByIdAndUtilisateur(id, utilisateur)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation introuvable")
 
         // Enregistrement du message utilisateur
         val messageUtilisateur = Message(
@@ -176,16 +213,23 @@ class HomeController(
     @PostMapping("/conversations/{id}/supprimer")
     fun supprimerConversation(
         @PathVariable id: Long,
-        @RequestParam(required = false) retour: String?
+        @RequestParam(required = false) retour: String?,
+        authentication: Authentication
     ): String {
 
-        if (conversationDAO.existsById(id)) {
-            conversationDAO.deleteById(id)
-        }
+        val utilisateur = this.getUtilisateurConnecte(authentication)
+
+        // Suppression uniquement si la conversation appartient à l'utilisateur connecté
+        val conversation = conversationDAO
+            .findByIdAndUtilisateur(id, utilisateur)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation introuvable")
+        conversationDAO.delete(conversation)
 
         // Si on supprime une autre conversation que celle affichée, on reste dessus
         val idCourant = retour?.toLongOrNull()
-        return if (idCourant != null && idCourant != id && conversationDAO.existsById(idCourant)) {
+        return if (idCourant != null && idCourant != id &&
+            conversationDAO.findByIdAndUtilisateur(idCourant, utilisateur) != null
+        ) {
             "redirect:/conversations/$idCourant"
         } else {
             "redirect:/chat"

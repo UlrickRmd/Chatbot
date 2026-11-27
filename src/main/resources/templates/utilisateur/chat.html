@@ -54,6 +54,13 @@
 
         </nav>
 
+        <!-- Utilisateur connecté -->
+        <div class="sidebar-user" th:if="${utilisateur != null}">
+            <span th:text="${utilisateur.prenom + ' ' + utilisateur.nom}">Prénom Nom</span>
+            <br>
+            <small th:text="${utilisateur.role.nom}">Rôle</small>
+        </div>
+
         <!-- Déconnexion -->
         <form th:action="@{/logout}" method="post" class="sidebar-logout">
             <button type="submit" class="sidebar-logout-btn">Déconnexion</button>

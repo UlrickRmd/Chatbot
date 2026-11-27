@@ -15,6 +15,21 @@
             <!-- Navigation : uniquement pour les utilisateurs connectés -->
             <th:block sec:authorize="isAuthenticated()">
 
+                <!-- Informations sur l'utilisateur connecté -->
+                <div class="user-info" th:if="${utilisateur != null}">
+                    <span th:text="${utilisateur != null
+                                    ? utilisateur.prenom + ' ' + utilisateur.nom
+                                    : 'Anonyme'}">
+                        Anonyme
+                    </span>
+                    <br>
+                    <small th:text="${utilisateur != null
+                                     ? utilisateur.role.nom
+                                     : 'Visiteur'}">
+                        Visiteur
+                    </small>
+                </div>
+
                 <a th:href="@{/}" class="nav-link">
                     Accueil
                 </a>

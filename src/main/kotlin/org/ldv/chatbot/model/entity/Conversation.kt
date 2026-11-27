@@ -21,7 +21,12 @@ class Conversation(
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "modele_ia_id")
-    var modeleIA: ModeleIA
+    var modeleIA: ModeleIA,
+
+    // Propriétaire de la conversation (clé étrangère utilisateur_id)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "utilisateur_id", nullable = false)
+    var utilisateur: Utilisateur
 ) {
     // Composition : les messages disparaissent avec la conversation
     @OneToMany(mappedBy = "conversation", cascade = [CascadeType.ALL], orphanRemoval = true)
